@@ -1,0 +1,27 @@
+{
+  "name": "react-snabbt",
+  "version": "0.1.0",
+  "description": "React wrapper for snabbt.js",
+  "main": "dist/react-snabbt.js",
+  "scripts": {
+    "build": "babel src --out-dir dist --stage 0",
+    "watch": "babel src --watch --out-dir dist --stage 0",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "snabbt",
+    "animation"
+  ],
+  "author": "Lari Hoppula",
+  "license": "MIT",
+  "dependencies": {
+    "snabbt.js": "^0.5.4"
+  },
+  "peerDependencies": {
+    "react": ">=0.13.0"
+  },
+  "devDependencies": {
+    "babel": "^5.4.7"
+  }
+}
