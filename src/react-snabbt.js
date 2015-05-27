@@ -152,14 +152,14 @@ class Snabbt extends React.Component {
         <div className="react-snabbt-container">
           {
             React.Children.map(this.props.children, (child, i) => {
-              return React.cloneElement(child, {style: this.state.styles[i]})
+              return React.cloneElement(child, {style: {...child.props.style, ...this.state.styles[i]}})
             })
           }
         </div>
       );
     } else {
       const component = React.Children.only(this.props.children);
-      return React.cloneElement(component, {style: this.state.styles[0]});
+      return React.cloneElement(component, {style: {...component.props.style, ...this.state.styles[0]}});
     }
   }
 }
