@@ -2,7 +2,7 @@
   "name": "react-snabbt",
   "version": "0.1.0",
   "description": "React wrapper for snabbt.js",
-  "main": "dist/react-snabbt.js",
+  "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir dist --stage 0",
     "watch": "babel src --watch --out-dir dist --stage 0",

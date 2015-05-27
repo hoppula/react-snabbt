@@ -48,3 +48,7 @@ class App extends React.Component {
 
 export default App;
 ```
+
+## Note
+
+Very WIP, server side rendering support is still broken, needs better control flow.
