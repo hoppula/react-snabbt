@@ -1,86 +1,54 @@
 import React from 'react';
 
+const fromOptions = {
+  position: "fromPosition",
+  rotation: "fromRotation",
+  scale: "fromScale",
+  rotationPost: "fromRotationPost",
+  width: "fromWidth",
+  height: "fromHeight",
+  opacity: "fromOpacity"
+};
+
+function convertToFromOptions(options) {
+  return Object.keys(options).reduce((obj, key) => {
+    const option = fromOptions[key] ? fromOptions[key] : key;
+    obj[option] = options[key];
+    return obj;
+  }, {});
+}
+
 class Toggle extends React.Component {
 
   constructor(props) {
     super(props);
     this.onComplete = this.onComplete.bind(this);
     this.state = {
-      active: props.active
+      active: false,
+      lastOptions: null
     }
   }
 
-  onComplete() {
-    this.setState({active: !this.state.active});
+  onComplete(options) {
+    const lastOptions = !this.state.active
+      ? convertToFromOptions(options)
+      : null;
+
+    this.setState({active: !this.state.active, lastOptions: lastOptions});
+
     if (this.props.onComplete) {
-      this.props.onComplete();
+      this.props.onComplete.call(this, lastOptions);
     }
   }
 
   render() {
-    const options = this.state.active
-      ? this.props.options[0]
-      : this.props.options[1];
-
+    const options = [this.state.active ? {} : this.props.options];
+    if (this.state.lastOptions) {
+      options.unshift(this.state.lastOptions);
+    }
     const component = React.Children.only(this.props.children);
     return React.cloneElement(component, {animate: this.props.animate, options: options, onComplete: this.onComplete});
   }
 }
 
 export default Toggle;
-
-
-// Usage (not tested yet):
-
-// import Animate from 'react-snabbt';
-// import Toggle from 'react-snabbt/toggle';
-
-// class App extends React.Component {
-
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       active: false,
-//       animate: false
-//     };
-//   }
-
-//   toggle() {
-//     this.setState({active: !this.state.active, animate: true});
-//   }
-
-//   endAnimation() {
-//     console.log( "Animation completed!" );
-//     this.setState({animate: false});
-//   }
-
-//   render() {
-//     const buttonStyles = {
-//       width: "200px",
-//       height: "40px",
-//       background: "#ddd",
-//       borderRadius: "5px"
-//     };
-//     const inactive = {
-//       position: [100, 0, 0],
-//       rotation: [Math.PI, 0, 0],
-//       easing: 'ease'
-//     };
-//     const active = {
-//       position: [0, 0, 0],
-//       rotation: [-Math.PI, 0, 0],
-//       easing: 'ease'
-//     };
-//     return (
-//       <div>
-//         <Toggle options={[inactive, active]} animate={this.state.animate} active={this.state.active} onComplete={this.endAnimation}>
-//           <Animate>
-//             <button style={buttonStyles} onClick={this.toggle.bind(this)}>Button</button>
-//           </Animate>
-//         </Toggle>
-//       </div>
-//     );
-//   }
-// }
-
-// export default App;
