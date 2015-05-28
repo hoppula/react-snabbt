@@ -74,9 +74,9 @@ class Snabbt extends React.Component {
     this.complete = this.complete.bind(this);
   }
 
-  complete() {
+  complete(options) {
     if (this.props.onComplete) {
-      this.props.onComplete.call(this);
+      this.props.onComplete.call(this, options);
     }
   }
 
@@ -88,7 +88,7 @@ class Snabbt extends React.Component {
     if (Array.isArray(this.props.options)) {
       this.props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
         if (i === 0) {
-          return snabbt.call(snabbtContext, this.state.children, {...opts, [completeCallback]: this.complete});
+          return snabbt.call(snabbtContext, this.state.children, {...opts, [completeCallback]: () => { this.complete.call(this, opts); }});
         } else {
           return snabbtContext.snabbt.call(snabbtContext, opts);
         }
@@ -96,7 +96,7 @@ class Snabbt extends React.Component {
     } else {
       const options = {
         ...reduceOptions(this.props.options),
-        [completeCallback]: this.complete
+        [completeCallback]: () => { this.complete.call(this, {...reduceOptions(this.props.options)}); }
       };
 
       snabbt(this.state.children, options);
