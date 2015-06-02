@@ -65,7 +65,8 @@ class Style {
 class Snabbt extends React.Component {
 
   static propTypes = {
-    animate: React.PropTypes.func,
+    animate: React.PropTypes.bool,
+    before: React.PropTypes.func,
     children: React.PropTypes.node,
     onComplete: React.PropTypes.func,
     options: React.PropTypes.oneOfType([React.PropTypes.array, React.PropTypes.object]),
@@ -89,6 +90,26 @@ class Snabbt extends React.Component {
   }
 
   animate() {
+    // styles returned from before callback will be applied just before animation runs
+    // example use case: display: "none" -> "block"
+    const beforeStyles = this.props.before
+      ? this.props.before()
+      : null;
+
+    if (beforeStyles) {
+      if (Array.isArray(this.props.children)) {
+        this.setState({
+          styles: this.props.children.map((child, i) => {
+            return {...this.state.styles[i], ...beforeStyles};
+          })
+        });
+      } else {
+        this.setState({
+          styles: [{...this.state.styles[0], ...beforeStyles}]
+        });
+      }
+    }
+
     const completeCallback = Array.isArray(this.props.children)
       ? "allDone"
       : "complete";
@@ -96,7 +117,13 @@ class Snabbt extends React.Component {
     if (Array.isArray(this.props.options)) {
       this.props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
         if (i === 0) {
-          return snabbt.call(snabbtContext, this.state.children, {...opts, [completeCallback]: () => { this.complete.call(this, opts); }});
+          const options = {
+            ...opts,
+            [completeCallback]: () => {
+              this.complete.call(this, opts);
+            }
+          };
+          return snabbt.call(snabbtContext, this.state.children, options);
         } else {
           return snabbtContext.snabbt.call(snabbtContext, opts);
         }
@@ -104,7 +131,9 @@ class Snabbt extends React.Component {
     } else {
       const options = {
         ...reduceOptions(this.props.options),
-        [completeCallback]: () => { this.complete.call(this, {...reduceOptions(this.props.options)}); }
+        [completeCallback]: () => {
+          this.complete.call(this, {...reduceOptions(this.props.options)});
+        }
       };
 
       snabbt(this.state.children, options);
@@ -122,6 +151,7 @@ class Snabbt extends React.Component {
   }
 
   componentDidMount() {
+    // actions will run in setState callback
     function actions() {
       if (this.props.animate) {
         this.animate();
@@ -137,11 +167,18 @@ class Snabbt extends React.Component {
           return {style: new Style(this, i)};
         }),
         styles: this.props.children.map((child) => {
-          return child.props.style;
+          return child.props.style || {};
         })
       }, actions);
     } else {
-      this.setState({children: [{style: new Style(this, 0)}], styles: [this.props.children.props.style]}, actions);
+      this.setState({
+        children: [
+          {style: new Style(this, 0)}
+        ],
+        styles: [
+          this.props.children.props.style || {}
+        ]
+      }, actions);
     }
   }
 
@@ -160,14 +197,18 @@ class Snabbt extends React.Component {
         <div className="react-snabbt-container">
           {
             React.Children.map(this.props.children, (child, i) => {
-              return React.cloneElement(child, {style: {...child.props.style, ...this.state.styles[i]}})
+              return React.cloneElement(child, {
+                style: {...child.props.style, ...this.state.styles[i]}
+              });
             })
           }
         </div>
       );
     } else {
       const component = React.Children.only(this.props.children);
-      return React.cloneElement(component, {style: {...component.props.style, ...this.state.styles[0]}});
+      return React.cloneElement(component, {
+        style: {...component.props.style, ...this.state.styles[0]}
+      });
     }
   }
 }

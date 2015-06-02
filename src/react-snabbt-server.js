@@ -6,7 +6,7 @@ class SnabbtServer extends React.Component {
       return (
         <div className="react-snabbt-container">
           {
-            React.Children.map(this.props.children, (child, i) => {
+            React.Children.map(this.props.children, (child) => {
               return React.cloneElement(child);
             })
           }
