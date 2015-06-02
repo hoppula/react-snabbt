@@ -20,6 +20,13 @@ function convertToFromOptions(options) {
 
 class Toggle extends React.Component {
 
+  static propTypes = {
+    animate: React.PropTypes.func,
+    children: React.PropTypes.node,
+    onComplete: React.PropTypes.func,
+    options: React.PropTypes.object
+  }
+
   constructor(props) {
     super(props);
     this.onComplete = this.onComplete.bind(this);
