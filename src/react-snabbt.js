@@ -64,6 +64,14 @@ class Style {
 
 class Snabbt extends React.Component {
 
+  static propTypes = {
+    animate: React.PropTypes.func,
+    children: React.PropTypes.node,
+    onComplete: React.PropTypes.func,
+    options: React.PropTypes.oneOfType([React.PropTypes.array, React.PropTypes.object]),
+    stop: React.PropTypes.func
+  }
+
   constructor(props) {
     super(props);
     this.state = {
