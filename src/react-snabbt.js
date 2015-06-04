@@ -77,29 +77,31 @@ class Snabbt extends React.Component {
     super(props);
     this.state = {
       children: [],
-      styles: []
+      styles: [],
+      completed: false
     };
     this.animate = this.animate.bind(this);
     this.complete = this.complete.bind(this);
   }
 
-  complete(options) {
-    if (this.props.onComplete) {
-      this.props.onComplete.call(this, options);
+  complete(props, options) {
+    this.setState({completed: true});
+    if (props.onComplete) {
+      props.onComplete.call(this, options);
     }
   }
 
-  animate() {
+  animate(props) {
     // styles returned from before callback will be applied just before animation runs
     // example use case: display: "none" -> "block"
-    const beforeStyles = this.props.before
-      ? this.props.before()
+    const beforeStyles = props.before
+      ? props.before()
       : null;
 
     if (beforeStyles) {
-      if (Array.isArray(this.props.children)) {
+      if (Array.isArray(props.children)) {
         this.setState({
-          styles: this.props.children.map((child, i) => {
+          styles: props.children.map((child, i) => {
             return {...this.state.styles[i], ...beforeStyles};
           })
         });
@@ -110,32 +112,31 @@ class Snabbt extends React.Component {
       }
     }
 
-    const completeCallback = Array.isArray(this.props.children)
+    const completeCallback = Array.isArray(props.children)
       ? "allDone"
       : "complete";
 
-    if (Array.isArray(this.props.options)) {
-      this.props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
+    if (Array.isArray(props.options)) {
+      props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
         if (i === 0) {
+          return snabbt.call(snabbtContext, this.state.children, opts);
+        } else {
           const options = {
             ...opts,
             [completeCallback]: () => {
-              this.complete.call(this, opts);
+              this.complete.call(this, props, opts);
             }
           };
-          return snabbt.call(snabbtContext, this.state.children, options);
-        } else {
-          return snabbtContext.snabbt.call(snabbtContext, opts);
+          return snabbtContext.snabbt.call(snabbtContext, options);
         }
       }, snabbt);
     } else {
       const options = {
-        ...reduceOptions(this.props.options),
+        ...reduceOptions(props.options),
         [completeCallback]: () => {
-          this.complete.call(this, {...reduceOptions(this.props.options)});
+          this.complete.call(this, props, {...reduceOptions(props.options)});
         }
       };
-
       snabbt(this.state.children, options);
     }
   }
@@ -145,16 +146,18 @@ class Snabbt extends React.Component {
   }
 
   updateStyle(attribute, value, index) {
-    const styles = this.state.styles;
-    styles[index][attribute] = value;
-    this.setState({styles: styles});
+    if (!this.state.completed) {
+      const styles = this.state.styles;
+      styles[index][attribute] = value;
+      this.setState({styles: styles});
+    }
   }
 
   componentDidMount() {
     // actions will run in setState callback
     function actions() {
       if (this.props.animate) {
-        this.animate();
+        this.animate(this.props);
       }
       if (this.props.stop) {
         this.stop();
@@ -184,7 +187,8 @@ class Snabbt extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.animate && !this.props.animate) {
-      this.animate();
+      this.setState({completed: false});
+      this.animate(nextProps);
     }
     if (nextProps.stop && !this.props.stop) {
       this.stop();
