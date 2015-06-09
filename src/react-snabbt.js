@@ -1,66 +1,8 @@
 import snabbt from 'snabbt.js';
 import React from 'react';
 
-const validOptions = [
-  "position",
-  "rotation",
-  "scale",
-  "rotationPost",
-  "width",
-  "height",
-  "opacity",
-  "duration",
-  "delay",
-  "loop",
-  "fromPosition",
-  "fromRotation",
-  "fromScale",
-  "fromRotationPost",
-  "fromWidth",
-  "fromHeight",
-  "fromOpacity",
-  "springConstant",
-  "springDeceleration",
-  "springMass",
-  "transformOrigin",
-  "easing"
-];
-
-function reduceOptions(options) {
-  return Object.keys(options).reduce((obj, option) => {
-    if (validOptions.indexOf(option) !== -1) {
-      obj[option] = options[option];
-    }
-    return obj;
-  }, {});
-}
-
-class Style {
-  constructor(component, index) {
-    this.component = component;
-    this.index = index;
-  }
-
-  set transform(transform) {
-    this.component.updateStyle("transform", transform, this.index);
-  }
-
-  set webkitTransform(transform) {
-    this.component.updateStyle("WebkitTransform", transform, this.index);
-  }
-
-  set opacity(opacity) {
-    this.component.updateStyle("opacity", opacity, this.index);
-  }
-
-  set width(width) {
-    this.component.updateStyle("width", width, this.index);
-  }
-
-  set height(height) {
-    this.component.updateStyle("height", height, this.index);
-  }
-}
+import reduceOptions from './reduce-options';
+import Style from './style';
 
 class Snabbt extends React.Component {
 
