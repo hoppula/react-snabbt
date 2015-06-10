@@ -2,14 +2,20 @@
 
 React wrapper for excellent [snabbt.js](http://daniel-lundin.github.io/snabbt.js/) animation library.
 
-All style changes go through React state handling, so the performance will take a small hit, but should not be far off from direct DOM `.style` manipulation.
+### require('react-snabbt')
+
+When you require `react-snabbt` directly, all styles go through React state handling, so the performance will take a small hit. It's not far off from direct DOM `.style` manipulation though and it's fine for single element animations. Use this if you want React to have total control over the DOM.
+
+### require('react-snabbt/dom')
+
+When animating large amount of elements, it's recommended to require `react-snabbt/dom` instead. This component bypasses React state handling and applies CSS transforms directly to DOM elements. When using this component, remember to not use `opacity` or `transform` in your React inline styles as they're handled by snabbt.js.
 
 ## &lt;Snabbt&gt;
 
-You can pass `Snabbt` component one or many child components to be animated. Use `options` prop for setting the animation options. If you pass an array of animation options to `options` prop, `react-snabbt` will chain the animations.
+You can animate one or multiple child components with `Snabbt` component. Use `options` prop for setting the animation options. If you pass an array of animation options to `options` prop, `react-snabbt` will chain the animations.
 
-You can start the animation by passing `animate` prop as truthy value.
-You can stop the animation by passing `stop` prop as truthy value. There's currently no way to continue stopped animation.
+You can start the animation by passing a truthy value in `animate` prop.
+You can stop the animation by passing a truthy value in `stop` prop. There's currently no way to continue stopped animation.
 
 If you want to be notified when animation finishes, pass a callback function as `onComplete` prop, it will be called only once even when animating multiple elements.
 
@@ -37,8 +43,8 @@ class App extends React.Component {
 
   render() {
     const buttonStyles = {
-      width: "200px", 
-      height: "40px", 
+      width: "200px",
+      height: "40px",
       background: "#ddd",
       borderRadius: "5px"
     };
