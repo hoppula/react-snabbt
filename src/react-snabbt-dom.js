@@ -7,6 +7,7 @@ class SnabbtDOM extends React.Component {
 
   static propTypes = {
     animate: React.PropTypes.bool,
+    before: React.PropTypes.func,
     children: React.PropTypes.node,
     onComplete: React.PropTypes.func,
     options: React.PropTypes.oneOfType([React.PropTypes.array, React.PropTypes.object]),
@@ -27,13 +28,31 @@ class SnabbtDOM extends React.Component {
   }
 
   animate(props) {
+    const element = Array.isArray(props.children)
+      ? React.findDOMNode(this).children
+      : React.findDOMNode(this);
+
+    // styles returned from before callback will be applied just before animation runs
+    // example use case: display: "none" -> "block"
+    const beforeStyles = props.before
+      ? props.before()
+      : null;
+
+    if (beforeStyles) {
+      Object.keys(beforeStyles).map((key) => {
+        if (Array.isArray(element)) {
+          element.map((child) => {
+            child.style[key] = beforeStyles[key];
+          });
+        } else {
+          element.style[key] = beforeStyles[key];
+        }
+      });
+    }
+
     const completeCallback = Array.isArray(props.children)
       ? "allDone"
       : "complete";
-
-    var element = Array.isArray(props.children)
-      ? React.findDOMNode(this).children
-      : React.findDOMNode(this);
 
     if (Array.isArray(props.options)) {
       props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
@@ -61,7 +80,7 @@ class SnabbtDOM extends React.Component {
   }
 
   stop() {
-    var element = Array.isArray(props.children)
+    const element = Array.isArray(this.props.children)
       ? React.findDOMNode(this).children
       : React.findDOMNode(this);
 
