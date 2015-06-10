@@ -6,6 +6,7 @@ import reduceOptions from './reduce-options';
 class SnabbtDOM extends React.Component {
 
   static propTypes = {
+    after: React.PropTypes.func,
     animate: React.PropTypes.bool,
     before: React.PropTypes.func,
     children: React.PropTypes.node,
@@ -27,11 +28,7 @@ class SnabbtDOM extends React.Component {
     }
   }
 
-  animate(props) {
-    const element = Array.isArray(props.children)
-      ? React.findDOMNode(this).children
-      : React.findDOMNode(this);
-
+  setBefore(props, element) {
     // styles returned from before callback will be applied just before animation runs
     // example use case: display: "none" -> "block"
     const beforeStyles = props.before
@@ -49,6 +46,34 @@ class SnabbtDOM extends React.Component {
         }
       });
     }
+  }
+
+  setAfter(props, element) {
+    // styles returned from after callback will be applied just after animation ends
+    // example use case: display: "block" -> "none"
+    const afterStyles = props.after
+      ? props.after()
+      : null;
+
+    if (afterStyles) {
+      Object.keys(afterStyles).map((key) => {
+        if (Array.isArray(element)) {
+          element.map((child) => {
+            child.style[key] = afterStyles[key];
+          });
+        } else {
+          element.style[key] = afterStyles[key];
+        }
+      });
+    }
+  }
+
+  animate(props) {
+    const element = Array.isArray(props.children)
+      ? React.findDOMNode(this).children
+      : React.findDOMNode(this);
+
+    this.setBefore(props, element);
 
     const completeCallback = Array.isArray(props.children)
       ? "allDone"
@@ -62,6 +87,7 @@ class SnabbtDOM extends React.Component {
           const options = {
             ...opts,
             [completeCallback]: () => {
+              this.setAfter(props, element);
               this.complete.call(this, props, opts);
             }
           };
@@ -72,6 +98,7 @@ class SnabbtDOM extends React.Component {
       const options = {
         ...reduceOptions(props.options),
         [completeCallback]: () => {
+          this.setAfter(props, element);
           this.complete.call(this, props, {...reduceOptions(props.options)});
         }
       };

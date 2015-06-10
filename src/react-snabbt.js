@@ -7,6 +7,7 @@ import Style from './style';
 class Snabbt extends React.Component {
 
   static propTypes = {
+    after: React.PropTypes.func,
     animate: React.PropTypes.bool,
     before: React.PropTypes.func,
     children: React.PropTypes.node,
@@ -33,7 +34,7 @@ class Snabbt extends React.Component {
     }
   }
 
-  animate(props) {
+  setBefore(props) {
     // styles returned from before callback will be applied just before animation runs
     // example use case: display: "none" -> "block"
     const beforeStyles = props.before
@@ -53,6 +54,32 @@ class Snabbt extends React.Component {
         });
       }
     }
+  }
+
+  setAfter(props) {
+    // styles returned from after callback will be applied just after animation ends
+    // example use case: display: "block" -> "none"
+    const afterStyles = props.after
+      ? props.after()
+      : null;
+
+    if (afterStyles) {
+      if (Array.isArray(props.children)) {
+        this.setState({
+          styles: props.children.map((child, i) => {
+            return {...this.state.styles[i], ...afterStyles};
+          })
+        });
+      } else {
+        this.setState({
+          styles: [{...this.state.styles[0], ...afterStyles}]
+        });
+      }
+    }
+  }
+
+  animate(props) {
+    this.setBefore(props);
 
     const completeCallback = Array.isArray(props.children)
       ? "allDone"
@@ -66,6 +93,7 @@ class Snabbt extends React.Component {
           const options = {
             ...opts,
             [completeCallback]: () => {
+              this.setAfter(props);
               this.complete.call(this, props, opts);
             }
           };
@@ -76,6 +104,7 @@ class Snabbt extends React.Component {
       const options = {
         ...reduceOptions(props.options),
         [completeCallback]: () => {
+          this.setAfter(props);
           this.complete.call(this, props, {...reduceOptions(props.options)});
         }
       };
