@@ -19,6 +19,8 @@ You can stop the animation by passing a truthy value in `stop` prop. There's cur
 
 If you want to be notified when animation finishes, pass a callback function as `onComplete` prop, it will be called only once even when animating multiple elements.
 
+There's also support for attention animations, just add `attention` prop with truthy value.
+
 ### Example usage
 ```javascript
 import Snabbt from 'react-snabbt';

@@ -79,10 +79,13 @@ class SnabbtDOM extends React.Component {
       ? "allDone"
       : "complete";
 
+    const attention = props.attention ? "attention" : null;
+
     if (Array.isArray(props.options)) {
       props.options.map(reduceOptions).reduce((snabbtContext, opts, i) => {
         if (i === 0) {
-          return snabbt.call(snabbtContext, element, opts);
+          const args = [snabbtContext, element, attention, opts].filter(Boolean);
+          return snabbt.call(...args);
         } else {
           const options = {
             ...opts,
@@ -102,7 +105,8 @@ class SnabbtDOM extends React.Component {
           this.complete.call(this, props, {...reduceOptions(props.options)});
         }
       };
-      snabbt(element, options);
+      const args = [element, attention, options].filter(Boolean);
+      snabbt(...args);
     }
   }
 
