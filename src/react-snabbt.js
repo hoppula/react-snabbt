@@ -10,7 +10,7 @@ class Snabbt extends React.Component {
     after: React.PropTypes.func,
     animate: React.PropTypes.bool,
     before: React.PropTypes.func,
-    children: React.PropTypes.node,
+    children: React.PropTypes.oneOfType([React.PropTypes.node, React.PropTypes.func]),
     onComplete: React.PropTypes.func,
     options: React.PropTypes.oneOfType([React.PropTypes.array, React.PropTypes.object]),
     stop: React.PropTypes.func
@@ -154,7 +154,7 @@ class Snabbt extends React.Component {
           {style: new Style(this, 0)}
         ],
         styles: [
-          this.props.children.props.style || {}
+          typeof this.props.children === "object" ? this.props.children.props.style || {} : {}
         ]
       }, actions);
     }
@@ -183,6 +183,8 @@ class Snabbt extends React.Component {
           }
         </div>
       );
+    } else if (typeof this.props.children === "function") {
+      return this.props.children(this.state.styles[0]);
     } else {
       const component = React.Children.only(this.props.children);
       return React.cloneElement(component, {
