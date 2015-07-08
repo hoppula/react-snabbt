@@ -22,7 +22,10 @@
     "react": ">=0.13.0"
   },
   "devDependencies": {
-    "babel": "^5.4.7"
+    "babel": "^5.4.7",
+    "babel-eslint": "^3.1.23",
+    "eslint": "^0.24.0",
+    "eslint-plugin-react": "^2.6.4"
   },
   "repository": {
     "type": "git",
