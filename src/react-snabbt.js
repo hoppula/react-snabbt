@@ -184,7 +184,7 @@ class Snabbt extends React.Component {
         </div>
       );
     } else if (typeof this.props.children === "function") {
-      return this.props.children(this.state.styles[0]);
+      return this.props.children({...this.state.styles[0]});
     } else {
       const component = React.Children.only(this.props.children);
       return React.cloneElement(component, {
